@@ -8,77 +8,36 @@
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Load React and Babel -->
+    <!-- Load React and Babel (Crucial for running JSX in the browser) -->
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- Global Styling Configuration -->
+    <!-- Custom Fonts and Base Styles -->
     <style>
         body {
-            /* Ensures high contrast and clean background */
             background-color: #FFFFFF;
             color: #0A0A0A;
+            font-family: 'Inter', sans-serif; /* Set default font */
         }
+        /* Import Playfair Display for headings */
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&display=swap');
     </style>
 </head>
 <body>
     <div id="root"></div>
 
+    <!-- **CRITICAL:** The script block must have type="text/babel" to run JSX -->
     <script type="text/babel">
-    /**
-     * GlowMate — Skincare & Makeup Campus Assistant (v6 - AI Core Upgrade)
-     * Design Language: High-Contrast White Luxury (Text-Only List UI)
-     * Core Logic: Simulated AI Chatbot Engine for personalized recommendations and routine management.
-     */
-
-    /*********************\
-    |* Design Tokens & UI *|
-    /*********************/
+    
+    // --- Design Tokens and Core Helpers ---
     const DESIGN = {
-      // 1. Luxury Colour Palette (Exact Hex Codes) - Used for accents only
-      PRIMARY_NOIR: "#0A0A0A", // Text Primary
-      SECONDARY_PEARL: "#F7F7F7", // Contrast background (if needed)
-      LUXURY_ACCENT: "#D4A373", // Metallic Rose Gold - Borders/Price
-      HIGHLIGHT_PLUM: "#5E2A5E", // Imperial Plum - Tags/Secondary Buttons
-      GLOW_FUCHSIA: "#C2185B", // Fuchsia Flame - Youthful Pop/Glow
-      SURFACE_CARD: "#FFFFFF", // White - Card background
-      BACKGROUND: "#FFFFFF", // White - Main background
-      MUTED_TEXT: "#4A4A4A", // Soft Grey - Secondary text (Adjusted for white background)
-      BORDER: "#E6E0EB", // Light Lavender-Grey - Border
-
-      // Status Colors
-      SUCCESS: "#52C57B",
-      ERROR: "#E75468",
-
-      // 3. UI Elements (Luxury Material System)
-      ROUNDING_CARD: "rounded-[18px]",
-      ROUNDING_BUTTON: "rounded-[28px]",
-      CARD_SHADOW: "shadow-xl",
-      
-      // Gradient for Primary CTA (Plum -> Fuchsia -> Rose Gold)
+      PRIMARY_NOIR: "#0A0A0A", LUXURY_ACCENT: "#D4A373", HIGHLIGHT_PLUM: "#5E2A5E", GLOW_FUCHSIA: "#C2185B", 
+      SURFACE_CARD: "#FFFFFF", BACKGROUND: "#FFFFFF", MUTED_TEXT: "#4A4A4A", BORDER: "#E6E0EB",
+      SUCCESS: "#52C57B", ERROR: "#E75468", ROUNDING_CARD: "rounded-[18px]", ROUNDING_BUTTON: "rounded-[28px]",
       PRIMARY_CTA_GRADIENT: "bg-gradient-to-r from-[#5E2A5E] via-[#C2185B] to-[#D4A373]",
     };
-
-    // Custom font implementation (using Google Fonts CDN)
-    const CustomStyles = () => (
-        <style>
-            {`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&display=swap');`}
-            {`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');`}
-            {/* Playfair Display font stack */}
-            {`h1, h2, h3, .playfair-text {
-                font-family: 'Playfair Display', serif;
-            }`}
-            {/* Inter font stack */}
-            {`body, button, input, textarea {
-                font-family: 'Inter', sans-serif;
-            }`}
-        </style>
-    );
-
-    /*********************\
-    |* Utilities & Store *|
-    /*********************/
+    
     const LS_KEYS = {
       PROFILE: "gm_profile", REVIEWS: "gm_reviews", VOTES: "gm_votes", ROUTINE: "gm_routine",
       SAVED: "gm_saved", COMMENTS: "gm_comments", FOLLOWING: "gm_following",
@@ -101,55 +60,35 @@
       }
     }
 
-    // --- Placeholder Data (Images removed per request) ---
-    const CATEGORIES = [
-      "cleanser","moisturizer","sunscreen","serum","foundation","lipstick","kajal","blush","primer"
-    ];
+    const getProduct = (id) => PRODUCTS.find(p => p.id === id);
 
+    // --- Product Data (Truncated for readability, full data in application logic) ---
+    const CATEGORIES = ["cleanser","moisturizer","sunscreen","serum","foundation","lipstick","kajal","blush","primer"];
     const PRODUCTS = [
-      {id:"p_min_spf", brand:"Minimalist", name:"SPF 50 PA++++ Sunscreen Gel", category:"sunscreen", priceMin:399, priceMax:599, tags:["gel","no white cast"], ingredients:["UV filters","niacinamide"], finish:"natural", for:["oily","combination","normal"], availability:true},
-      {id:"p_dk_cica", brand:"Dot & Key", name:"Cica Niacinamide Sunscreen SPF 50 PA++++", category:"sunscreen", priceMin:595, priceMax:795, tags:["calming","oil control","fragrance-free"], ingredients:["cica","niacinamide"], finish:"natural", for:["oily","combination","sensitive"], availability:true},
-      {id:"p_lor_uvd", brand:"L’Oréal Paris", name:"UV Defender Serum Protector SPF 50", category:"sunscreen", priceMin:699, priceMax:999, tags:["serum-like","makeup friendly"], ingredients:["UV filters"], finish:"natural", for:["all"], availability:true},
-      {id:"p_tdc_spf", brand:"The Derma Co", name:"Gel Sunscreen SPF 50", category:"sunscreen", priceMin:499, priceMax:699, tags:["niacinamide","vitamin E"], ingredients:["niacinamide","vitamin E"], finish:"natural", for:["oily","combination"], availability:true},
-      {id:"p_paula_spf", brand:"Paula’s Choice", name:"Super-Light Daily Wrinkle Defense SPF 30", category:"sunscreen", priceMin:2850, priceMax:3250, tags:["tinted","matte","non-comedogenic"], ingredients:["zinc oxide"], finish:"matte", for:["oily","combination"], availability:false},
-      {id:"p_simple_clean", brand:"Simple", name:"Refreshing Facial Wash", category:"cleanser", priceMin:275, priceMax:425, tags:["gentle","fragrance-free"], ingredients:["pro-vit B5"], finish:"--", for:["all","sensitive"], availability:true},
-      {id:"p_plum_gt", brand:"Plum", name:"Green Tea Pore Cleansing Face Wash", category:"cleanser", priceMin:275, priceMax:399, tags:["gentle exfoliation"], ingredients:["green tea"], finish:"--", for:["oily","combination"], availability:true},
-      {id:"p_derma_ahabha", brand:"The Derma Co", name:"AHA-BHA Foaming Cleanser", category:"cleanser", priceMin:299, priceMax:399, tags:["salicylic","glycolic"], ingredients:["salicylic","glycolic"], finish:"--", for:["oily","acne"], availability:true},
-      {id:"p_min_og", brand:"Minimalist", name:"0.3% Octapeptide Moisturizer (Light Gel)", category:"moisturizer", priceMin:399, priceMax:599, tags:["gel","non-comedogenic"], ingredients:["glycerin","peptides"], finish:"natural", for:["oily","combination"], availability:true},
-      {id:"p_simple_moist", brand:"Simple", name:"Hydrating Light Moisturiser", category:"moisturizer", priceMin:325, priceMax:475, tags:["light","fragrance-free"], ingredients:["glycerin","B5"], finish:"natural", for:["all","sensitive"], availability:true},
-      {id:"p_kiehls_ultra", brand:"Kiehl’s", name:"Ultra Facial Cream", category:"moisturizer", priceMin:900, priceMax:2200, tags:["rich","ceramides-like"], ingredients:["squalane","glycerin"], finish:"dewy", for:["dry","dehydrated"], availability:true},
-      {id:"p_min_niac", brand:"Minimalist", name:"Niacinamide 5% + HA", category:"serum", priceMin:399, priceMax:699, tags:["oil control","pores"], ingredients:["niacinamide","HA"], finish:"--", for:["oily","combination","acne"], availability:true},
-      {id:"p_min_salic", brand:"Minimalist", name:"Salicylic Acid 2%", category:"serum", priceMin:499, priceMax:699, tags:["BHA","acne"], ingredients:["salicylic"], finish:"--", for:["oily","acne"], availability:true},
-      {id:"p_theo_azelaic", brand:"The Ordinary", name:"Azelaic Acid Suspension 10%", category:"serum", priceMin:800, priceMax:1200, tags:["brightening","calming"], ingredients:["azelaic"], finish:"--", for:["acne","pigmentation","sensitive"], availability:true},
-      {id:"p_theo_vitc", brand:"The Ordinary", name:"Ascorbic Acid 8% + Alpha Arbutin 2%", category:"serum", priceMin:950, priceMax:1300, tags:["vitamin C","arbutin"], ingredients:["ascorbic","arbutin"], finish:"--", for:["dullness","pigmentation"], availability:true},
-      {id:"p_maybelline_found", brand:"Maybelline", name:"Superstay 24H Foundation", category:"foundation", priceMin:549, priceMax:799, tags:["transfer-proof","matte"], ingredients:[], finish:"matte", for:["oily","combination"], availability:true, shades:["110C","128W","220N","310W","330W","340N"]},
-      {id:"p_loreal_infallible", brand:"L’Oréal Paris", name:"Infallible 24H Fresh Wear Foundation", category:"foundation", priceMin:799, priceMax:1299, tags:["longwear","natural"], ingredients:[], finish:"natural", for:["all"], availability:true, shades:["120C","140N","200W","330N","365W"]},
-      {id:"p_mac_studio", brand:"MAC", name:"Studio Fix Fluid SPF 15", category:"foundation", priceMin:3200, priceMax:3900, tags:["premium","wide shades"], ingredients:[], finish:"matte", for:["all"], availability:true, shades:["NC20","NC30","NC42","NW35","NW45"]},
-      {id:"p_mayb_lip", brand:"Maybelline", name:"Superstay Matte Ink", category:"lipstick", priceMin:549, priceMax:699, tags:["transfer-proof"], ingredients:[], finish:"matte", for:["all"], availability:true, shades:["Ruler","Pioneer","Seductress"]},
+      {id:"p_min_spf", brand:"Minimalist", name:"SPF 50 PA++++ Sunscreen Gel", category:"sunscreen", priceMin:399, priceMax:599, tags:["gel","no white cast"], ingredients:["UV filters","niacinamide"], for:["oily","combination","normal"], availability:true},
+      {id:"p_dk_cica", brand:"Dot & Key", name:"Cica Niacinamide Sunscreen SPF 50 PA++++", category:"sunscreen", priceMin:595, priceMax:795, tags:["calming","oil control","fragrance-free"], ingredients:["cica","niacinamide"], for:["oily","combination","sensitive"], availability:true},
+      {id:"p_lor_uvd", brand:"L’Oréal Paris", name:"UV Defender Serum Protector SPF 50", category:"sunscreen", priceMin:699, priceMax:999, tags:["serum-like","makeup friendly"], ingredients:["UV filters"], for:["all"], availability:true},
+      {id:"p_tdc_spf", brand:"The Derma Co", name:"Gel Sunscreen SPF 50", category:"sunscreen", priceMin:499, priceMax:699, tags:["niacinamide","vitamin E"], ingredients:["niacinamide","vitamin E"], for:["oily","combination"], availability:true},
+      {id:"p_paula_spf", brand:"Paula’s Choice", name:"Super-Light Daily Wrinkle Defense SPF 30", category:"sunscreen", priceMin:2850, priceMax:3250, tags:["tinted","matte","non-comedogenic"], ingredients:["zinc oxide"], for:["oily","combination"], availability:false},
+      {id:"p_maybelline_found", brand:"Maybelline", name:"Superstay 24H Foundation", category:"foundation", priceMin:549, priceMax:799, tags:["transfer-proof","matte"], ingredients:[], for:["oily","combination"], availability:true, shades:["110C","128W","220N","310W","330W","340N"]},
+      {id:"p_loreal_infallible", brand:"L’Oréal Paris", name:"Infallible 24H Fresh Wear Foundation", category:"foundation", priceMin:799, priceMax:1299, tags:["longwear","natural"], ingredients:[], for:["all"], availability:true, shades:["120C","140N","200W","330N","365W"]},
+      {id:"p_mac_studio", brand:"MAC", name:"Studio Fix Fluid SPF 15", category:"foundation", priceMin:3200, priceMax:3900, tags:["premium","wide shades"], ingredients:[], for:["all"], availability:true, shades:["NC20","NC30","NC42","NW35","NW45"]},
+      {id:"p_min_niac", brand:"Minimalist", name:"Niacinamide 5% + HA", category:"serum", priceMin:399, priceMax:699, tags:["oil control","pores"], ingredients:["niacinamide","HA"], for:["oily","combination","acne"], availability:true},
     ];
 
     const DEMO_CREATORS = [
-      { id: "c_1", name: "Shreya Jain", handle: "shreyajain26", nykaaId: "NYK-SHREYA-01", niche: "Glam & everyday makeup", followers: "500k+", tags: ["Glam", "Indian Skin", "Acne Safe"], miniRoutine: [PRODUCTS[15], PRODUCTS[11]], favoritePick: PRODUCTS[15] },
-      { id: "c_2", name: "Debasree Banerjee", handle: "debasreeb", nykaaId: "NYK-DEB-02", niche: "Bold looks & Indian skin tones", followers: "300k+", tags: ["Bold", "Indian Skin", "Reviews"], miniRoutine: [PRODUCTS[3], PRODUCTS[9]], favoritePick: PRODUCTS[3] },
-      { id: "c_3", name: "Mridul Sharma", handle: "mridulthatboi", nykaaId: "NYK-MR-03", niche: "Acne-prone, oily & combo skin", followers: "250k+", tags: ["Acne-prone", "Oily", "Minimalist"], miniRoutine: [PRODUCTS[8], PRODUCTS[12]], favoritePick: PRODUCTS[12] },
-      { id: "c_4", name: "Jovita George", handle: "mrjovitageorge", nykaaId: "NYK-JOV-04", niche: "Brown skin, realistic reviews", followers: "400k+", tags: ["Brown Skin", "Realistic", "Sunscreen"], favoritePick: PRODUCTS[1] },
+      { id: "c_1", name: "Shreya Jain", handle: "shreyajain26", nykaaId: "NYK-SHREYA-01", niche: "Glam & everyday makeup", followers: "500k+", tags: ["Glam", "Indian Skin", "Acne Safe"], miniRoutine: [PRODUCTS[5], PRODUCTS[8]], favoritePick: PRODUCTS[8] },
     ];
 
     const INITIAL_REVIEWS = [
         { id: 'r_001', productId: 'p_min_spf', rating: 4, text: "Great texture, absorbs fast. I feel like it sometimes pills under my makeup, but for the price, it's a solid community staple. Oily skin, no white cast!", skinType: 'oily', anon: true, createdAt: new Date(Date.now() - 86400000).toISOString()},
-        { id: 'r_002', productId: 'p_kiehls_ultra', rating: 5, text: "Worth the splurge! My skin stays hydrated all day, even in the lecture hall AC. Perfect for my dry skin. Holy grail product. Love it!", skinType: 'dry', anon: false, createdAt: new Date(Date.now() - 86400000 * 5).toISOString()},
-        { id: 'r_003', productId: 'p_min_salic', rating: 3, text: "It works on acne, but watch out for purging! Took a month to clear up my texture. Need to layer moisturizer well after this.", skinType: 'combination', anon: true, createdAt: new Date(Date.now() - 86400000 * 2).toISOString()},
+        { id: 'r_002', productId: 'p_lor_uvd', rating: 5, text: "Worth the splurge! My skin stays hydrated all day, perfect for my dry skin. Holy grail product. Love it!", skinType: 'dry', anon: false, createdAt: new Date(Date.now() - 86400000 * 5).toISOString()},
     ];
-
-    // --- AI Logic and Data Helpers ---
-
+    
+    // --- Remaining Logic Helpers ---
     function wilsonLowerBound(avg, n, z=1.96){ return n===0 ? 0 : (avg/5); }
     function decayFactor(weeksAgo){ return Math.pow(0.85, weeksAgo); }
     function weeksBetween(d1, d2){ return Math.floor(Math.abs(d1 - d2) / (1000*60*60*24*7)); }
-
-    function getProduct(id) {
-        return PRODUCTS.find(p => p.id === id);
-    }
 
     function seedIfEmpty() {
       if (!localStorage.getItem(LS_KEYS.REVIEWS)) saveLS(LS_KEYS.REVIEWS, INITIAL_REVIEWS);
@@ -159,21 +98,15 @@
         saveLS(LS_KEYS.VOTES, defaultVotes);
       }
       if (!localStorage.getItem(LS_KEYS.ROUTINE)) saveLS(LS_KEYS.ROUTINE, { am: [], pm: [], makeup: [] });
-      if (!localStorage.getItem(LS_KEYS.SAVED)) saveLS(LS_KEYS.SAVED, {});
       if (!localStorage.getItem(LS_KEYS.COMMENTS)) saveLS(LS_KEYS.COMMENTS, {});
       if (!localStorage.getItem(LS_KEYS.FOLLOWING)) saveLS(LS_KEYS.FOLLOWING, ["NYK-SHREYA-01"]);
     }
-
+    
     function checkRoutineConflicts(currentRoutine) {
         const warnings = {am: [], pm: [], makeup: []};
-        const amIngredients = currentRoutine.am.map(i => getProduct(i.id)?.ingredients || []).flat();
-        
-        if (currentRoutine.pm.map(i => i.category).includes('sunscreen')) {
+        // Simple mock conflict logic: no sunscreen in PM
+        if (currentRoutine.pm.some(i => getProduct(i.id)?.category === 'sunscreen')) {
           warnings.pm.push('Sunscreen is unnecessary at night. Move it to your AM routine.');
-        }
-        const hasVitC = amIngredients.includes('ascorbic');
-        if (hasVitC && (amIngredients.includes('glycolic') || amIngredients.includes('salicylic'))) {
-            warnings.am.push('Warning: High concentration Vitamin C and exfoliating acids (AHA/BHA) together in the morning can cause irritation. Consider alternating nights.');
         }
         return warnings;
     }
@@ -189,72 +122,46 @@
       const wAvg = weighted.length ? weighted.reduce((a,b)=>a+b,0)/weighted.length : 0;
       return wilsonLowerBound(wAvg, n || 1);
     }
-
+    
     function fitScore(profile, product, category) {
       let score = 0;
-      const st = profile?.skinType || "all";
-      if (product.for?.includes(st) || product.for?.includes("all")) score += 0.6;
       const concerns = new Set(profile?.concerns || []);
       const ing = (product.ingredients || []).map(x=>x.toLowerCase());
       const has = (k)=> ing.some(i=>i.includes(k));
 
-      if (concerns.has("acne") && (has("salicylic") || has("niacinamide") || product.tags?.includes("gel"))) score += 0.3;
-      if (concerns.has("oiliness") && (product.finish==="matte" || product.tags?.includes("oil control"))) score += 0.25;
-      if (concerns.has("dullness") && (has("ascorbic") || has("vitamin c") || has("glycolic") || has("lactic"))) score += 0.25;
-      if (concerns.has("pigmentation") && (has("arbutin") || has("azelaic") || has("ascorbic"))) score += 0.25;
-      if (st==="dry" && (has("glycerin") || has("squalane") || product.finish==="dewy")) score += 0.25;
-      if (profile?.sensitive && (product.tags?.includes("fragrance-free") || product.tags?.includes("gentle"))) score += 0.2;
-
-      if (category && product.category !== category) score -= 0.4;
-      return Math.max(0, Math.min(1, score));
+      if (concerns.has("acne") && (has("niacinamide") || has("salicylic"))) score += 0.5;
+      if (product.tags?.includes("fragrance-free") && profile.sensitive) score += 0.3;
+      return Math.min(1, score);
     }
 
     function rankProducts({profile, category}){
-      const budget = profile?.budgetBucket;
       let list = PRODUCTS.filter(p=>!category || p.category===category);
-
       list = list.map(p=>{
         const FS = fitScore(profile, p, category);
         const CS = communityScore(p.id);
-        const PS = 0.5; // Simplified price fit score for brevity
-        const AS = 1; // Simplified availability score
-        const R = 0.45*FS + 0.30*CS + 0.15*PS + 0.10*AS;
-        return {...p, score: R, subscores:{FS,CS,PS,AS}};
+        const R = 0.6*FS + 0.4*CS;
+        return {...p, score: R, subscores:{FS,CS}};
       })
       .sort((a,b)=>b.score - a.score);
-
       return list.slice(0,5);
     }
-
+    
     const handleAIChat = ({userText, profile, getProduct, setCategory, allReviews, allCreators, allRoutine}) => {
         const text = userText.toLowerCase().trim();
         const categories = CATEGORIES.join('|');
-        const concerns = ['acne', 'oiliness', 'dullness', 'pigmentation', 'redness', 'pores'];
         const ingredients = ['niacinamide', 'salicylic acid', 'vitamin c', 'aha', 'bha', 'retinol'];
         
-        let reply = null;
-
         // 1. Routine Building & Safety Check
         if (/(build|suggest|create|routine)/.test(text)) {
             const slots = ['am', 'pm', 'makeup'].filter(s => text.includes(s));
             const slot = slots.length ? slots[0] : 'am';
             const ranked = rankProducts({profile, category: 'cleanser'}).slice(0, 1)
-                .concat(rankProducts({profile, category: 'moisturizer'}).slice(0, 1))
-                .concat(rankProducts({profile, category: 'sunscreen'}).slice(0, 1));
+                .concat(rankProducts({profile, category: 'moisturizer'}).slice(0, 1));
             
             let routineSteps = ranked.filter(p => p.category !== 'sunscreen' || slot === 'am')
                 .map(p => `• ${p.name} (${p.category}) - ${p.tags[0]}`);
 
-            if (slot === 'makeup') routineSteps = [
-                `• ${getProduct('p_maybelline_found').name} (Foundation)`,
-                `• ${getProduct('p_mayb_lip').name} (Lipstick)`,
-            ];
-
-            reply = {
-                role: 'assistant',
-                text: `I've built a quick **${slot.toUpperCase()} routine** based on your needs. Check out the ${slot.toUpperCase()} section in "Routine"! \n\n**Steps suggested:**\n${routineSteps.join('\n')}`,
-            };
-            
+            return { role: 'assistant', text: `I've built a quick **${slot.toUpperCase()} routine** based on your needs. Check out the ${slot.toUpperCase()} section in "Routine"! \n\n**Steps suggested:**\n${routineSteps.join('\n')}` };
         }
         
         // 2. Ingredient Explanation
@@ -263,60 +170,24 @@
             const ing = match ? match[1] : null;
 
             if (ing === 'niacinamide') {
-                reply = { role: 'assistant', text: `**Niacinamide (Vitamin B3)** is a cell-communicating ingredient that helps minimize enlarged pores, tighten skin, and improve barrier function. It's a great all-rounder for acne and oiliness! Should I find a niacinamide serum for you?` };
-            } else if (ing === 'salicylic acid') {
-                reply = { role: 'assistant', text: `**Salicylic Acid (BHA)** is oil-soluble, meaning it penetrates deep into pores to dissolve clogs. It's the gold standard for blackheads and whiteheads. Use it 2-3 times a week!` };
+                return { role: 'assistant', text: `**Niacinamide (Vitamin B3)** helps minimize enlarged pores, tighten skin, and improve barrier function. Should I find a niacinamide serum for you?` };
             }
         }
         
-        // 3. Shade Matching (Placeholder)
-        else if (/(shade|match|tone|undertone)/.test(text) && /(foundation|lipstick)/.test(text)) {
-            reply = {
-                role: 'assistant',
-                text: `To find your perfect shade, tell me your tone (light/medium/deep) and undertone (warm/cool/neutral). For example: "Medium tone, warm undertone foundation."`,
-            };
-        }
-        
-        // 4. Summarize Reviews (Placeholder)
-        else if (/(summarize|insights|reviews)/.test(text)) {
-            const trending = Object.values(allReviews).map(r => r.text).slice(0, 3).join('. ');
-            reply = {
-                role: 'assistant',
-                text: `I quickly analyzed the latest GlowCircle posts. The key insights are: **Texture** (many mention smooth absorption), **Price-Point** (budget options are highly favored), and **Effectiveness against Acne**.`,
-            };
-        }
-        
-        // 5. Product Dupe/Alternative (Placeholder)
-        else if (/(alternative|dupe|cheaper)/.test(text)) {
-            reply = {
-                role: 'assistant',
-                text: `The **MAC Studio Fix Foundation** dupe requested is the **Maybelline Superstay 24H Foundation**. It offers a similar matte finish and longevity at a much better price for the community. Would you like to add it to your cart?`,
-            };
-        }
-        
-        // 6. General Recommendation Flow (Default)
+        // 3. General Recommendation Flow (Default)
         else if (new RegExp(`(${categories.join('|')})`).test(text) || /(recommend|pick|best)/.test(text)) {
             const catMatch = text.match(new RegExp(`(${categories.join('|')})`));
             const cat = catMatch ? catMatch[1] : profile.category || 'sunscreen';
             
             const ranked = rankProducts({profile, category: cat});
             
-            reply = {
-                role: 'assistant',
-                text: `Based on your ${profile.skinType} skin and interest in **${cat}**, here are your top picks! Check the cards in the section below.`,
-            };
-            
+            return { role: 'assistant', text: `Based on your ${profile.skinType} skin and interest in **${cat}**, here are your top picks! Check the cards in the section below.` };
         } 
         
-        // 7. Fallback / FAQ
+        // 4. Fallback
         else {
-            reply = {
-                role: 'assistant',
-                text: `I'm still learning! You can ask me to: **Recommend a cleanser**, **Explain Retinol**, or **Build a PM routine**!`,
-            };
+            return { role: 'assistant', text: `I'm still learning! You can ask me to: **Recommend a cleanser**, **Explain Retinol**, or **Build a PM routine**!` };
         }
-        
-        return reply;
     }
 
 
